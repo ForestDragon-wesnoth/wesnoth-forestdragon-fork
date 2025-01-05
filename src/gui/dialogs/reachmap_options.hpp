@@ -28,8 +28,8 @@ class reachmap_options : public modal_dialog
 public:
 	reachmap_options();
 
-	/** The execute function. See @ref modal_dialog for more information. */
-	DEFINE_SIMPLE_EXECUTE_WRAPPER(reachmap_options)
+	DEFINE_SIMPLE_DISPLAY_WRAPPER(reachmap_options)
+
 
 private:
 	virtual void pre_show() override;
