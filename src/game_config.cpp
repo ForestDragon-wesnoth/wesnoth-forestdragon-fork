@@ -125,6 +125,14 @@ bool show_status_on_ally_orb;
 bool show_unmoved_orb;
 
 //
+// Reach Map UI flags
+//
+
+bool reach_map_darken_mode;
+int reach_map_border_opacity;
+int reach_map_tint_opacity;
+
+//
 // Music constants
 //
 std::string title_music, lobby_music;
@@ -372,6 +380,9 @@ void load_config(const config &v)
 	shroud_prefix = v["shroud_prefix"].str();
 	fog_prefix    = v["fog_prefix"].str();
 	reach_map_prefix 	= v["reach_map_prefix"].str();
+	reach_map_darken_mode 	= v["reach_map_darken_mode"].to_bool(false);
+	reach_map_border_opacity = v["reach_map_border_opacity"].to_int(100);
+	reach_map_tint_opacity   = v["reach_map_border_opacity"].to_int(100);
 
 	add_color_info(game_config_view::wrap(v), true);
 

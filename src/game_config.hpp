@@ -96,6 +96,9 @@ namespace game_config
 	extern bool show_partial_orb;
 	extern bool show_status_on_ally_orb;
 	extern bool show_unmoved_orb;
+	extern bool reach_map_darken_mode;
+	extern int reach_map_border_opacity;
+	extern int reach_map_tint_opacity;
 
 	namespace images {
 	extern std::string game_title,

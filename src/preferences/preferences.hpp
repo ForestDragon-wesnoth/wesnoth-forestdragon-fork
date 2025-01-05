@@ -493,6 +493,9 @@ public:
 	PREF_GETTER_SETTER(show_unmoved_orb, bool, game_config::show_unmoved_orb)
 	PREF_GETTER_SETTER(show_partial_orb, bool, game_config::show_partial_orb)
 	PREF_GETTER_SETTER(show_disengaged_orb, bool, game_config::show_disengaged_orb)
+	PREF_GETTER_SETTER(reach_map_darken_mode, bool, game_config::reach_map_darken_mode)
+	PREF_GETTER_SETTER(reach_map_border_opacity, int, game_config::reach_map_border_opacity)
+	PREF_GETTER_SETTER(reach_map_tint_opacity, int, game_config::reach_map_tint_opacity)
 	PREF_GETTER_SETTER(core, std::string, std::string("default"))
 	PREF_GETTER_SETTER(scroll_to_action, bool, true)
 	PREF_GETTER_SETTER(auto_pixel_scale, bool, true)
@@ -813,6 +816,9 @@ private:
 		prefs_list::animate_map,
 		prefs_list::animate_water,
 		prefs_list::addon_icons,
+		prefs_list::reach_map_darken_mode,
+		prefs_list::reach_map_border_opacity,
+		prefs_list::reach_map_tint_opacity,
 	};
 	static constexpr std::array synced_children_{
 		prefs_list::acquaintance,
