@@ -58,8 +58,8 @@ namespace gui2::dialogs
 namespace
 {
 // Index 2 is by-level
-static std::pair sort_default{ std::string{"unit_name"}, sort_order::type::ascending };
-static utils::optional<decltype(sort_default)> sort_last;
+std::pair sort_default{ std::string{"unit_name"}, sort_order::type::ascending };
+utils::optional<decltype(sort_default)> sort_last;
 }
 
 REGISTER_DIALOG(units_dialog)
@@ -474,7 +474,10 @@ std::unique_ptr<units_dialog> units_dialog::build_recruit_dialog(
 		.set_row_num(recruit_list.size())
 		.show_all_headers(false)
 		.set_column("unit_image", recruit_list, [&team](const auto& recruit) {
-			std::string image_string = recruit->image();
+			std::string image_string = recruit->icon();
+			if (image_string.empty()) {
+				image_string = recruit->image();
+			}
 			image_string += "~RC(" + recruit->flag_rgb() + ">" + team.color() + ")";
 			image_string += "~SCALE_INTO(72,72)";
 			return image_string;
