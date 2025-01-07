@@ -35,12 +35,14 @@ public:
 
 
 private:
+//THE TOGGLE NOT NEEDED FOR REACHMAP, DELETE LATER
 	/**
 	 * Sets up the checkbox that's common to the no-color, one-color and two-color settings.
 	 * Sets its ticked/unticked state and connects the callback for user interaction.
 	 */
-	void setup_reachmap_toggle(const std::string& base_id, bool& shown);
-	void toggle_reachmap_callback(bool& storage);
+//	void setup_reachmap_toggle(const std::string& base_id, bool& shown);
+//	void toggle_reachmap_callback(bool& storage);
+
 	/**
 	 * Sets up the checkbox and row of color buttons for the one-color options, including
 	 * connecting the callbacks for user interaction.
@@ -49,15 +51,17 @@ private:
 	 * @param shown the checkbox's ticked state (input and asynchronous output)
 	 * @param initial which color to select (input only)
 	 */
-	void setup_reachmap_group(const std::string& base_id, bool& shown, const std::string& initial);
+	void setup_reachmap_group(const std::string& base_id, const std::string& initial);
 
 
 	/**
 	 * Change the UI's ticked/unticked state. Neither sets up nor triggers callbacks.
 	 */
-	void reset_reachmap_toggle(const std::string& base_id, bool shown);
-	void reset_reachmap_group(const std::string& base_id, bool shown, const std::string& initial);
+//THE TOGGLE NOT NEEDED FOR REACHMAP, DELETE LATER
+//	void reset_reachmap_toggle(const std::string& base_id, bool shown);
+	void reset_reachmap_group(const std::string& base_id, const std::string& initial);
 
+	void reset_reachmap_callback();
 
 	std::map<std::string, group<std::string>> groups_;
 

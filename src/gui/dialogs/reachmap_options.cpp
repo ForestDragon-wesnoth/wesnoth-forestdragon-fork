@@ -47,6 +47,13 @@ reachmap_options::reachmap_options()
 
 void reachmap_options::pre_show()
 {
+	setup_reachmap_group("standard_color", prefs::get().reach_map_color());
+
+//TODO: uncomment later if it's necessary
+
+//	connect_signal_mouse_left_click(
+//		find_widget<button>("orb_defaults"), std::bind(&reachmap_options::reset_orb_callback, this));
+
 }
 
 void reachmap_options::post_show()
@@ -54,25 +61,28 @@ void reachmap_options::post_show()
 }
 
 
-void reachmap_options::setup_reachmap_toggle(const std::string& base_id, bool& shown)
-{
-	const std::string prefix = get_reachmap_widget_prefix(base_id);
-	toggle_button& toggle = find_widget<toggle_button>(prefix + "show");
-	toggle.set_value_bool(shown);
+//THE TOGGLE NOT NEEDED FOR REACHMAP, DELETE LATER
+//void reachmap_options::setup_reachmap_toggle(const std::string& base_id, bool& shown)
+//{
+//	const std::string prefix = get_reachmap_widget_prefix(base_id);
+//	toggle_button& toggle = find_widget<toggle_button>(prefix + "show");
+//	toggle.set_value_bool(shown);
+//
+//	connect_signal_mouse_left_click(toggle, std::bind(&reachmap_options::toggle_reachmap_callback, this, std::ref(shown)));
+//}
+//
+//void reachmap_options::toggle_reachmap_callback(bool& storage)
+//{
+//	// The code for the two-color groups uses this for both the main setting and the two_color setting - if
+//	// you add any extra logic here, check that it's still also applicable to the two_color setting.
+//	storage = !storage;
+//}
 
-	connect_signal_mouse_left_click(toggle, std::bind(&reachmap_options::toggle_reachmap_callback, this, std::ref(shown)));
-}
-
-void reachmap_options::toggle_reachmap_callback(bool& storage)
+void reachmap_options::setup_reachmap_group(const std::string& base_id, const std::string& initial)
 {
-	// The code for the two-color groups uses this for both the main setting and the two_color setting - if
-	// you add any extra logic here, check that it's still also applicable to the two_color setting.
-	storage = !storage;
-}
 
-void reachmap_options::setup_reachmap_group(const std::string& base_id, bool& shown, const std::string& initial)
-{
-	setup_reachmap_toggle(base_id, shown);
+//THE TOGGLE NOT NEEDED FOR REACHMAP, DELETE LATER
+//	setup_reachmap_toggle(base_id, shown);
 
 	//
 	// Set up the toggle group.
@@ -93,18 +103,34 @@ void reachmap_options::setup_reachmap_group(const std::string& base_id, bool& sh
 	group.set_member_states(initial);
 }
 
-void reachmap_options::reset_reachmap_toggle(const std::string& base_id, bool shown)
-{
-	const std::string prefix = get_reachmap_widget_prefix(base_id);
+//THE TOGGLE NOT NEEDED FOR REACHMAP, DELETE LATER
+//void reachmap_options::reset_reachmap_toggle(const std::string& base_id, bool shown)
+//{
+//	const std::string prefix = get_reachmap_widget_prefix(base_id);
+//
+//	toggle_button& toggle = find_widget<toggle_button>(prefix + "show");
+//	toggle.set_value_bool(shown);
+//}
 
-	toggle_button& toggle = find_widget<toggle_button>(prefix + "show");
-	toggle.set_value_bool(shown);
+void reachmap_options::reset_reachmap_group(const std::string& base_id, const std::string& initial)
+{
+//THE TOGGLE NOT NEEDED FOR REACHMAP, DELETE LATER
+//	reset_reachmap_toggle(base_id, shown);
+
+	groups_[base_id].set_member_states(initial);
 }
 
-void reachmap_options::reset_reachmap_group(const std::string& base_id, bool shown, const std::string& initial)
+void reachmap_options::reset_reachmap_callback()
 {
-	reset_reachmap_toggle(base_id, shown);
-	groups_[base_id].set_member_states(initial);
+//	show_unmoved_ = game_config::show_unmoved_orb;
+//	show_partial_ = game_config::show_partial_orb;
+//	show_disengaged_ = game_config::show_disengaged_orb;
+//	show_moved_ = game_config::show_moved_orb;
+//	show_ally_ = game_config::show_ally_orb;
+//	two_color_ally_ = game_config::show_status_on_ally_orb;
+//	show_enemy_ = game_config::show_enemy_orb;
+
+	reset_reachmap_group("standard_color", game_config::colors::reach_map_color);
 }
 
 } // namespace gui2::dialogs
