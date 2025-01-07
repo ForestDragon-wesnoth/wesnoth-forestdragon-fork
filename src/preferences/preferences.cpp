@@ -578,6 +578,15 @@ std::string prefs::partial_color() {
 void prefs::set_partial_color(const std::string& color_id) {
 	preferences_[prefs_list::partial_orb_color] = color_id;
 }
+std::string prefs::reach_map_color() {
+	std::string reachmap_color = preferences_[prefs_list::reach_map_color].str();
+	if (reachmap_color.empty())
+		return game_config::colors::reach_map_color;
+	return fix_orb_color_name(reachmap_color);
+}
+void prefs::set_reach_map_color(const std::string& color_id) {
+	preferences_[prefs_list::reach_map_color] = color_id;
+}
 
 point prefs::resolution()
 {

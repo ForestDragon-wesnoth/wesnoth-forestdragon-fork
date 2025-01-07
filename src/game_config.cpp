@@ -165,6 +165,7 @@ std::string enemy_orb_color;
 std::string moved_orb_color;
 std::string partial_orb_color;
 std::string unmoved_orb_color;
+std::string reach_map_color;
 std::string default_color_list;
 } // namespace colors
 
@@ -309,6 +310,7 @@ void load_config(const config &v)
 		partial_orb_color  = i["partial_orb_color"].str();
 		enemy_orb_color    = i["enemy_orb_color"].str();
 		ally_orb_color     = i["ally_orb_color"].str();
+		reach_map_color     = i["reach_map_color"].str();
 	} // colors
 
 	show_ally_orb     = v["show_ally_orb"].to_bool(true);
