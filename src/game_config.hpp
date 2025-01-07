@@ -87,6 +87,7 @@ namespace game_config
 	extern std::string partial_orb_color;
 	extern std::string unmoved_orb_color;
 	extern std::string reach_map_color;
+	extern std::string reach_map_enemy_color;
 	extern std::string default_color_list;
 	} // colors
 

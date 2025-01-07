@@ -326,6 +326,8 @@ struct preferences_list_defines
 	ADDPREF(reach_map_border_opacity)
 	/** the color of the reach map */
 	ADDPREF(reach_map_color)
+	/** the color of tile borders of the reach map that are next to an enemy */
+	ADDPREF(reach_map_enemy_color)
 	/** opacity of the reach map tint, 100 being 100% of the original image opacity, 0 being invisible */
 	ADDPREF(reach_map_tint_opacity)
 	/** whether to play a sound when the game is ready to be started */
@@ -569,7 +571,8 @@ struct preferences_list_defines
 		addon_icons,
 		reach_map_border_opacity,
 		reach_map_tint_opacity,
-		reach_map_color
+		reach_map_color,
+		reach_map_enemy_color
 	)
 };
 using prefs_list = string_enums::enum_base<preferences_list_defines>;

@@ -588,6 +588,16 @@ void prefs::set_reach_map_color(const std::string& color_id) {
 	preferences_[prefs_list::reach_map_color] = color_id;
 }
 
+std::string prefs::reach_map_enemy_color() {
+	std::string reachmap_enemy_color = preferences_[prefs_list::reach_map_enemy_color].str();
+	if (reachmap_enemy_color.empty())
+		return game_config::colors::reach_map_enemy_color;
+	return fix_orb_color_name(reachmap_enemy_color);
+}
+void prefs::set_reach_map_enemy_color(const std::string& color_id) {
+	preferences_[prefs_list::reach_map_enemy_color] = color_id;
+}
+
 point prefs::resolution()
 {
 	const unsigned x_res = preferences_[prefs_list::xresolution].to_unsigned();

@@ -316,6 +316,9 @@ public:
 	std::string reach_map_color();
 	void set_reach_map_color(const std::string& color_id);
 
+	std::string reach_map_enemy_color();
+	void set_reach_map_enemy_color(const std::string& color_id);
+
 	int scroll_speed();
 	void set_scroll_speed(const int scroll);
 
@@ -823,6 +826,7 @@ private:
 		prefs_list::reach_map_border_opacity,
 		prefs_list::reach_map_tint_opacity,
 		prefs_list::reach_map_color,
+		prefs_list::reach_map_enemy_color,
 	};
 	static constexpr std::array synced_children_{
 		prefs_list::acquaintance,
