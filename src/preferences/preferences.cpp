@@ -598,6 +598,26 @@ void prefs::set_reach_map_enemy_color(const std::string& color_id) {
 	preferences_[prefs_list::reach_map_enemy_color] = color_id;
 }
 
+int prefs::reach_map_border_opacity()
+{
+	return preferences_[prefs_list::reach_map_border_opacity].to_int();
+}
+
+void prefs::set_reach_map_border_opacity(const int new_opacity)
+{
+	preferences_[prefs_list::reach_map_border_opacity] = new_opacity;
+}
+
+int prefs::reach_map_tint_opacity()
+{
+	return preferences_[prefs_list::reach_map_tint_opacity].to_int();
+}
+
+void prefs::set_reach_map_tint_opacity(const int new_opacity)
+{
+	preferences_[prefs_list::reach_map_tint_opacity] = new_opacity;
+}
+
 point prefs::resolution()
 {
 	const unsigned x_res = preferences_[prefs_list::xresolution].to_unsigned();

@@ -50,6 +50,16 @@ void reachmap_options::pre_show()
 	setup_reachmap_group("standard_color", prefs::get().reach_map_color());
 	setup_reachmap_group("enemy_color", prefs::get().reach_map_enemy_color());
 
+	//connect the sliders to the opacity settings:
+
+	register_integer("reachmap_opacity_border", true,
+		[]() {return prefs::get().reach_map_border_opacity();},
+		[](int v) {prefs::get().set_reach_map_border_opacity(v);});
+
+	register_integer("reachmap_opacity_tint", true,
+		[]() {return prefs::get().reach_map_tint_opacity();},
+		[](int v) {prefs::get().set_reach_map_tint_opacity(v);});
+
 	connect_signal_mouse_left_click(
 		find_widget<button>("reachmap_defaults"), std::bind(&reachmap_options::reset_reachmap_callback, this));
 
