@@ -70,5 +70,41 @@ void reachmap_options::toggle_reachmap_callback(bool& storage)
 	storage = !storage;
 }
 
+void reachmap_options::setup_reachmap_group(const std::string& base_id, bool& shown, const std::string& initial)
+{
+	setup_reachmap_toggle(base_id, shown);
+
+	//
+	// Set up the toggle group.
+	//
+	group<std::string>& group = groups_[base_id];
+
+	// Grid containing each color option toggle.
+	const std::string prefix = get_reachmap_widget_prefix(base_id);
+	grid& selection = find_widget<grid>(prefix + "selection");
+
+	for(iteration::bottom_up_iterator<true, false, true> iter(selection); !iter.at_end(); ++iter) {
+		if(toggle_button* button = dynamic_cast<toggle_button*>(iter.get())) {
+			const std::string& id = button->id();
+			group.add_member(button, id.substr(prefix.size()));
+		}
+	}
+
+	group.set_member_states(initial);
+}
+
+void reachmap_options::reset_reachmap_toggle(const std::string& base_id, bool shown)
+{
+	const std::string prefix = get_reachmap_widget_prefix(base_id);
+
+	toggle_button& toggle = find_widget<toggle_button>(prefix + "show");
+	toggle.set_value_bool(shown);
+}
+
+void reachmap_options::reset_reachmap_group(const std::string& base_id, bool shown, const std::string& initial)
+{
+	reset_reachmap_toggle(base_id, shown);
+	groups_[base_id].set_member_states(initial);
+}
 
 } // namespace gui2::dialogs

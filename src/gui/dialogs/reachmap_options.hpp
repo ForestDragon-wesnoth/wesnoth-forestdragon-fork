@@ -15,6 +15,9 @@
 #pragma once
 
 #include "gui/dialogs/modal_dialog.hpp"
+#include "gui/widgets/group.hpp"
+
+#include <map>
 
 namespace gui2::dialogs
 {
@@ -38,7 +41,25 @@ private:
 	 */
 	void setup_reachmap_toggle(const std::string& base_id, bool& shown);
 	void toggle_reachmap_callback(bool& storage);
+	/**
+	 * Sets up the checkbox and row of color buttons for the one-color options, including
+	 * connecting the callbacks for user interaction.
+	 *
+	 * @param base_id which group of checkboxes and buttons to affect
+	 * @param shown the checkbox's ticked state (input and asynchronous output)
+	 * @param initial which color to select (input only)
+	 */
+	void setup_reachmap_group(const std::string& base_id, bool& shown, const std::string& initial);
 
+
+	/**
+	 * Change the UI's ticked/unticked state. Neither sets up nor triggers callbacks.
+	 */
+	void reset_reachmap_toggle(const std::string& base_id, bool shown);
+	void reset_reachmap_group(const std::string& base_id, bool shown, const std::string& initial);
+
+
+	std::map<std::string, group<std::string>> groups_;
 
 	virtual void pre_show() override;
 	virtual void post_show() override;
