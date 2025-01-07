@@ -48,6 +48,7 @@ reachmap_options::reachmap_options()
 void reachmap_options::pre_show()
 {
 	setup_reachmap_group("standard_color", prefs::get().reach_map_color());
+	setup_reachmap_group("enemy_color", prefs::get().reach_map_enemy_color());
 
 	connect_signal_mouse_left_click(
 		find_widget<button>("reachmap_defaults"), std::bind(&reachmap_options::reset_reachmap_callback, this));
@@ -61,6 +62,7 @@ void reachmap_options::post_show()
 	}
 
 	prefs::get().set_reach_map_color(groups_["standard_color"].get_active_member_value());
+	prefs::get().set_reach_map_enemy_color(groups_["enemy_color"].get_active_member_value());
 }
 
 void reachmap_options::setup_reachmap_group(const std::string& base_id, const std::string& initial)
@@ -93,6 +95,7 @@ void reachmap_options::reset_reachmap_group(const std::string& base_id, const st
 void reachmap_options::reset_reachmap_callback()
 {
 	reset_reachmap_group("standard_color", game_config::colors::reach_map_color);
+	reset_reachmap_group("enemy_color", game_config::colors::reach_map_enemy_color);
 }
 
 } // namespace gui2::dialogs
