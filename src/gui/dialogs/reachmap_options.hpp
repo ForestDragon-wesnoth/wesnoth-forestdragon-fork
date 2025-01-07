@@ -32,6 +32,14 @@ public:
 
 
 private:
+	/**
+	 * Sets up the checkbox that's common to the no-color, one-color and two-color settings.
+	 * Sets its ticked/unticked state and connects the callback for user interaction.
+	 */
+	void setup_reachmap_toggle(const std::string& base_id, bool& shown);
+	void toggle_reachmap_callback(bool& storage);
+
+
 	virtual void pre_show() override;
 	virtual void post_show() override;
 
