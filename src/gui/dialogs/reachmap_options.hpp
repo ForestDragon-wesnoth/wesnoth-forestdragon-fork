@@ -51,6 +51,8 @@ private:
 
 	void reset_reachmap_group(const std::string& base_id, const std::string& initial);
 
+	void reset_reachmap_slider(const std::string& base_id, const int& initial);
+
 	void reset_reachmap_callback();
 
 	std::map<std::string, group<std::string>> groups_;

@@ -384,7 +384,7 @@ void load_config(const config &v)
 	fog_prefix    = v["fog_prefix"].str();
 	reach_map_prefix 	= v["reach_map_prefix"].str();
 	reach_map_border_opacity = v["reach_map_border_opacity"].to_int(100);
-	reach_map_tint_opacity   = v["reach_map_border_opacity"].to_int(100);
+	reach_map_tint_opacity   = v["reach_map_tint_opacity"].to_int(100);
 
 	add_color_info(game_config_view::wrap(v), true);
 
