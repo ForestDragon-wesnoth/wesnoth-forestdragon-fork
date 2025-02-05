@@ -700,9 +700,9 @@ std::pair<int,map_location> unit_ability_list::get_extremum(const std::string& k
 	int stack = 0;
 	for (const unit_ability& p : cfgs_)
 	{
-		int value = get_single_ability_value((*p.ability_cfg)[key], def, p, loc(), const_attack_ptr(), [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
-			return formula.evaluate(callable).as_int();
-		});
+		int value = std::round(get_single_ability_value((*p.ability_cfg)[key], static_cast<double>(def), p, loc(), const_attack_ptr(), [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
+			return std::round(formula.evaluate(callable).as_int());
+		}));
 
 		if ((*p.ability_cfg)["cumulative"].to_bool()) {
 			stack += value;
@@ -1225,7 +1225,7 @@ attack_type::specials_context_t::~specials_context_t()
 }
 
 attack_type::specials_context_t::specials_context_t(attack_type::specials_context_t&& other)
-	: parent(other.parent)
+	: parent(std::move(other.parent))
 {
 	other.was_moved = true;
 }
@@ -1258,7 +1258,7 @@ void attack_type::modified_attacks(unsigned & min_attacks,
 	}
 }
 
-static std::string select_replacement_type(const unit_ability_list& damage_type_list)
+std::string attack_type::select_replacement_type(const unit_ability_list& damage_type_list) const
 {
 	std::map<std::string, unsigned int> type_count;
 	unsigned int max = 0;
@@ -1273,7 +1273,7 @@ static std::string select_replacement_type(const unit_ability_list& damage_type_
 		}
 	}
 
-	if (type_count.empty()) return "";
+	if (type_count.empty()) return type();
 
 	std::vector<std::string> type_list;
 	for(auto& i : type_count){
@@ -1282,27 +1282,29 @@ static std::string select_replacement_type(const unit_ability_list& damage_type_
 		}
 	}
 
-	if(type_list.empty()) return "";
+	if(type_list.empty()) return type();
 
 	return type_list.front();
 }
 
-static std::string select_alternative_type(const unit_ability_list& damage_type_list, const unit_ability_list& resistance_list, const unit& u)
+std::pair<std::string, int> attack_type::select_alternative_type(const unit_ability_list& damage_type_list, const unit_ability_list& resistance_list) const
 {
 	std::map<std::string, int> type_res;
-	int max_res = std::numeric_limits<int>::min();
-	for(auto& i : damage_type_list) {
-		const config& c = *i.ability_cfg;
-		if(c.has_attribute("alternative_type")) {
-			std::string type = c["alternative_type"].str();
-			if(type_res.count(type) == 0){
-				type_res[type] = u.resistance_value(resistance_list, type);
-				max_res = std::max(max_res, type_res[type]);
+	int max_res = INT_MIN;
+	if(other_){
+		for(auto& i : damage_type_list) {
+			const config& c = *i.ability_cfg;
+			if(c.has_attribute("alternative_type")) {
+				std::string type = c["alternative_type"].str();
+				if(type_res.count(type) == 0){
+					type_res[type] = (*other_).resistance_value(resistance_list, type);
+					max_res = std::max(max_res, type_res[type]);
+				}
 			}
 		}
 	}
 
-	if (type_res.empty()) return "";
+	if (type_res.empty()) return {"", INT_MIN};
 
 	std::vector<std::string> type_list;
 	for(auto& i : type_res){
@@ -1310,72 +1312,69 @@ static std::string select_alternative_type(const unit_ability_list& damage_type_
 			type_list.push_back(i.first);
 		}
 	}
-	if(type_list.empty()) return "";
+	if(type_list.empty()) return {"", INT_MIN};
 
-	return type_list.front();
-}
-
-std::string attack_type::select_damage_type(const unit_ability_list& damage_type_list, const std::string& key_name, const unit_ability_list& resistance_list) const
-{
-	bool is_alternative = (key_name == "alternative_type");
-	if(is_alternative && other_){
-		return select_alternative_type(damage_type_list, resistance_list, (*other_));
-	} else if(!is_alternative){
-		return select_replacement_type(damage_type_list);
-	}
-	return "";
+	return {type_list.front(), max_res};
 }
 
 /**
- * Returns the type of damage inflicted.
+ * The type of attack used and the resistance value that does the most damage.
  */
-std::pair<std::string, std::string> attack_type::damage_type() const
+std::pair<std::string, int> attack_type::effective_damage_type() const
 {
 	if(attack_empty()){
-		return {"", ""};
+		return {"", 100};
 	}
-	unit_ability_list damage_type_list = get_specials_and_abilities("damage_type");
-	if(damage_type_list.empty()){
-		return {type(), ""};
-	}
-
 	unit_ability_list resistance_list;
 	if(other_){
 		resistance_list = (*other_).get_abilities_weapons("resistance", other_loc_, other_attack_, shared_from_this());
+		utils::erase_if(resistance_list, [&](const unit_ability& i) {
+			return (!((*i.ability_cfg)["active_on"].empty() || (!is_attacker_ && (*i.ability_cfg)["active_on"] == "offense") || (is_attacker_ && (*i.ability_cfg)["active_on"] == "defense")));
+		});
 	}
-	std::string replacement_type = select_damage_type(damage_type_list, "replacement_type", resistance_list);
-	std::string alternative_type = select_damage_type(damage_type_list, "alternative_type", resistance_list);
-	std::string type_damage = replacement_type.empty() ? type() : replacement_type;
-	if(!alternative_type.empty() && type_damage != alternative_type){
-		return {type_damage, alternative_type};
+	unit_ability_list damage_type_list = get_specials_and_abilities("damage_type");
+	int res = other_ ? (*other_).resistance_value(resistance_list, type()) : 100;
+	if(damage_type_list.empty()){
+		return {type(), res};
 	}
-	return {type_damage, ""};
+	std::string replacement_type = select_replacement_type(damage_type_list);
+	std::pair<std::string, int> alternative_type = select_alternative_type(damage_type_list, resistance_list);
+
+	if(other_){
+		res = replacement_type != type() ? (*other_).resistance_value(resistance_list, replacement_type) : res;
+		replacement_type = alternative_type.second > res ? alternative_type.first : replacement_type;
+		res = std::max(res, alternative_type.second);
+	}
+	return {replacement_type, res};
 }
 
-std::set<std::string> attack_type::alternative_damage_types() const
+/**
+ * Return a type()/replacement_type and a list of alternative_types that should be displayed in the selected unit's report.
+ */
+std::pair<std::string, std::set<std::string>> attack_type::damage_types() const
 {
 	unit_ability_list damage_type_list = get_specials_and_abilities("damage_type");
+	std::set<std::string> alternative_damage_types;
 	if(damage_type_list.empty()){
-		return {};
+		return {type(), alternative_damage_types};
 	}
-	std::set<std::string> damage_types;
+	std::string replacement_type = select_replacement_type(damage_type_list);
 	for(auto& i : damage_type_list) {
 		const config& c = *i.ability_cfg;
 		if(c.has_attribute("alternative_type")){
-			damage_types.insert(c["alternative_type"].str());
+			alternative_damage_types.insert(c["alternative_type"].str());
 		}
 	}
 
-	return damage_types;
+	return {replacement_type, alternative_damage_types};
 }
-
 
 /**
  * Returns the damage per attack of this weapon, considering specials.
  */
-int attack_type::modified_damage() const
+double attack_type::modified_damage() const
 {
-	int damage_value = composite_value(get_specials_and_abilities("damage"), damage());
+	double damage_value = unit_abilities::effect(get_specials_and_abilities("damage"), damage(), shared_from_this()).get_composite_double_value();
 	return damage_value;
 }
 
@@ -2452,10 +2451,10 @@ effect::effect(const unit_ability_list& list, int def, const const_attack_ptr& a
 
 		if(wham != EFFECT_CUMULABLE){
 			if (const config::attribute_value *v = cfg.get("value")) {
-				int value = get_single_ability_value(*v, def, ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
+				int value = std::round(get_single_ability_value(*v, static_cast<double>(def), ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
 					callable.add("base_value", wfl::variant(def));
-					return formula.evaluate(callable).as_int();
-				});
+					return std::round(formula.evaluate(callable).as_int());
+				}));
 
 				int value_cum = cfg["cumulative"].to_bool() ? std::max(def, value) : value;
 				assert((set_effect_min.type != NOT_USED) == (set_effect_max.type != NOT_USED));
@@ -2484,27 +2483,27 @@ effect::effect(const unit_ability_list& list, int def, const const_attack_ptr& a
 		}
 
 		if (const config::attribute_value *v = cfg.get("add")) {
-			int add = get_single_ability_value(*v, def, ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
+			int add = std::round(get_single_ability_value(*v, static_cast<double>(def), ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
 				callable.add("base_value", wfl::variant(def));
-				return formula.evaluate(callable).as_int();
-			});
+				return std::round(formula.evaluate(callable).as_int());
+			}));
 			std::map<std::string,individual_effect>::iterator add_effect = values_add.find(effect_id);
 			if(add_effect == values_add.end() || add > add_effect->second.value) {
 				values_add[effect_id].set(ADD, add, ability.ability_cfg, ability.teacher_loc);
 			}
 		}
 		if (const config::attribute_value *v = cfg.get("sub")) {
-			int sub = - get_single_ability_value(*v, def, ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
+			int sub = - std::round(get_single_ability_value(*v, static_cast<double>(def), ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
 				callable.add("base_value", wfl::variant(def));
-				return formula.evaluate(callable).as_int();
-			});
+				return std::round(formula.evaluate(callable).as_int());
+			}));
 			std::map<std::string,individual_effect>::iterator sub_effect = values_sub.find(effect_id);
 			if(sub_effect == values_sub.end() || sub < sub_effect->second.value) {
 				values_sub[effect_id].set(ADD, sub, ability.ability_cfg, ability.teacher_loc);
 			}
 		}
 		if (const config::attribute_value *v = cfg.get("multiply")) {
-			int multiply = static_cast<int>(get_single_ability_value(*v, static_cast<double>(def), ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
+			int multiply = std::round(get_single_ability_value(*v, static_cast<double>(def), ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
 				callable.add("base_value", wfl::variant(def));
 				return formula.evaluate(callable).as_decimal() / 1000.0 ;
 			}) * 100);
@@ -2514,7 +2513,7 @@ effect::effect(const unit_ability_list& list, int def, const const_attack_ptr& a
 			}
 		}
 		if (const config::attribute_value *v = cfg.get("divide")) {
-			int divide = static_cast<int>(get_single_ability_value(*v, static_cast<double>(def), ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
+			int divide = std::round(get_single_ability_value(*v, static_cast<double>(def), ability, list.loc(), att, [&](const wfl::formula& formula, wfl::map_formula_callable& callable) {
 				callable.add("base_value", wfl::variant(def));
 				return formula.evaluate(callable).as_decimal() / 1000.0 ;
 			}) * 100);
@@ -2576,15 +2575,16 @@ effect::effect(const unit_ability_list& list, int def, const const_attack_ptr& a
 		effect_list_.push_back(val.second);
 	}
 
-	composite_value_ = static_cast<int>((value_set + addition + substraction) * multiplier / divisor);
+	composite_double_value_ = (value_set + addition + substraction) * multiplier / divisor;
 	//clamp what if min_value < max_value or one attribute only used.
 	if(max_value && min_value && *min_value < *max_value) {
-		composite_value_ = std::clamp(*min_value, *max_value, composite_value_);
+		composite_double_value_ = std::clamp(static_cast<double>(*min_value), static_cast<double>(*max_value), composite_double_value_);
 	} else if(max_value && !min_value) {
-		composite_value_ = std::min(*max_value, composite_value_);
+		composite_double_value_ = std::min(static_cast<double>(*max_value), composite_double_value_);
 	} else if(min_value && !max_value) {
-		composite_value_ = std::max(*min_value, composite_value_);
+		composite_double_value_ = std::max(static_cast<double>(*min_value), composite_double_value_);
 	}
+	composite_value_ = std::round(composite_double_value_);
 }
 
 } // end namespace unit_abilities

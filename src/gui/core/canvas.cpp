@@ -277,7 +277,7 @@ void image_shape::draw(wfl::map_formula_callable& variables)
 	const std::string& name = image_name_(variables);
 
 	if(name.empty()) {
-		DBG_GUI_D << "Image: formula returned no value, will not be drawn.";
+		DBG_GUI_D << "Image: name is empty or contains invalid formula, will not be drawn.";
 		return;
 	}
 
@@ -431,7 +431,7 @@ void text_shape::draw(wfl::map_formula_callable& variables)
 	// We first need to determine the size of the text which need the rendered
 	// text. So resolve and render the text first and then start to resolve
 	// the other formulas.
-	const t_string text = text_(variables);
+	const t_string& text = cfg_["parse_text_as_formula"].to_bool(true) ? text_(variables) : cfg_["text"].t_str();
 
 	if(text.empty()) {
 		DBG_GUI_D << "Text: no text to render, leave.";
